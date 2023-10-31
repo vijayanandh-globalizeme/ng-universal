@@ -9,8 +9,10 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "dev:ssr": "ng run vijay:serve-ssr",
-    "serve:ssr": "node dist/vijay/server/main.js",
-    "build:ssr": "ng build --prod && ng run vijay:server:production",
+    "build:ssr": "npm run build:client-and-server-bundles && npm run webpack:server",
+    "serve:ssr": "node dist/server",
+    "build:client-and-server-bundles": "ng build --prod && ng run vijay:server",
+    "webpack:server": "webpack --config webpack.server.config.js --progress --colors",
     "prerender": "ng run vijay:prerender"
   },
   "private": true,
