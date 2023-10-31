@@ -1,18 +1,16 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "extends": "./tsconfig.app.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/server",
-    "target": "es2016",
-    "types": [
-      "node"
-    ]
+    "outDir": "../out-tsc/app",
+    "baseUrl": "./",
+    "module": "commonjs",
+    "types": []
   },
-  "files": [
-    "src/main.server.ts",
-    "server.ts"
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts"
   ],
   "angularCompilerOptions": {
-    "entryModule": "./src/app/app.server.module#AppServerModule"
+    "entryModule": "app/app.server.module#AppServerModule"
   }
 }
