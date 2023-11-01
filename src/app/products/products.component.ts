@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PRODUCTS } from '../mocked-products';
+import { PostService } from '../post.service';
 
 @Component({
   selector: 'app-products',
@@ -8,9 +9,14 @@ import { PRODUCTS } from '../mocked-products';
 })
 
 export class ProductsComponent implements OnInit {
-  products = PRODUCTS;
+  posts: any;
 
-  constructor() { }
+  constructor(private service: PostService) {}
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.service.getPosts()
+        .subscribe(response => {
+          this.posts = response;
+        });
+   }
 }
