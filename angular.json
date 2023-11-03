@@ -28,7 +28,9 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/sitemap.xml",
+              "src/robots.txt"
             ],
             "styles": [
               "src/styles.scss"
@@ -129,7 +131,7 @@
           "builder": "@angular-devkit/build-angular:server",
           "options": {
             "outputPath": "dist/vijay/server",
-            "main": "server.ts",
+            "main": "server/index.ts",
             "tsConfig": "tsconfig.server.json"
           },
           "configurations": {

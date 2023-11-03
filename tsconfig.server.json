@@ -10,7 +10,9 @@
   },
   "files": [
     "src/main.server.ts",
-    "server.ts"
+    "server/index.ts",
+    "server/robots.ts",
+    "server/sitemap.ts"
   ],
   "angularCompilerOptions": {
     "entryModule": "./src/app/app.server.module#AppServerModule"
