@@ -1,37 +1,73 @@
+
+import { environment } from '../src/environments/environment';
 import { SitemapStream } from 'sitemap';
-import { Request, Response } from 'express';
 
 import * as fs from 'fs';
 
 const { Readable } = require('stream');
 const { streamToPromise } = require('sitemap');
 
-export function sitemap(req: Request, res: Response) {
-    try {
-        let changefreq = 'weekly';
-        let links = [
-        { url: '', changefreq, priority: 1 },
-        { url: 'aboutus', changefreq, priority: 0.9 },
-        { url: 'blog', changefreq },
-        { url: 'login', changefreq },
-        { url: 'register', changefreq },
-        ];
+let http = require("http"),
+    https = require("https");
 
-        // Additionally, you can do database query and add more dynamic URLs to the "links" array.
-        const stream = new SitemapStream({ hostname: 'http://localhost:4200', lastmodDateOnly: true })
-        return streamToPromise(Readable.from(links).pipe(stream)).then((data: any) => {
-            fs.writeFile('dist/vijay/browser/sitemap.xml', data, function(err) {
-            if(err && err != null){console.log("s3");
-                res.status(500).end();
-            }
-            res.status(200).end();
+/**
+* sitemap:  REST get request returning JSON object(s)
+* @param options: http options object
+// */
+export function sitemap(options: any) {
+    let reqHandler = +options.port === 443 ? https : http;
+
+    return new Promise((resolve, reject) => {
+        let request = reqHandler.get(options.host+options.path, (response: any) => {
+            let data: any = []; 
+            response.setEncoding('utf8');
+
+            response.on('data', function (chunk: any) {
+                data = chunk;
+            });
+
+            response.on('end', () => {
+                console.log("data", data);
+                if(data && data != ""){
+                    data = JSON.parse(data);
+                    if(data?.sitemap){
+                        let links = data?.sitemap.map(function(elem: any){
+                            elem.priority = parseFloat(elem.priority);
+                            return elem;
+                        });
+                        links.unshift({
+                            url: "",
+                            changefreq: "monthly",
+                            priority: 1.0
+                        });
+                        try {
+                            const stream = new SitemapStream({ hostname: environment.domain, lastmodDateOnly: true })
+                            return streamToPromise(Readable.from(links).pipe(stream)).then((sitemapData: any) => {
+                                fs.writeFile(environment.siteMap, sitemapData, function(err) {
+                                    if(err && err != null){
+                                        reject(err);
+                                    }
+                                    resolve({
+                                        statusCode: response.statusCode,
+                                        message: "Sitemap file has updated"
+                                    });
+                                });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    }else{
+                        request.end();
+                    }
+                }
+            });
         });
 
-        stream.end();
-        return res.status(200).send()
+        request.on('error', (err: any) => {
+            reject(err);
         });
 
-    } catch (error) {
-        return res.status(500).end();
-    }
-}
+        request.end();
+    });
+}    
+

@@ -3,7 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  siteMap: "dist/vijay/browser/sitemap.xml",
+  robotsTxt: "dist/vijay/browser/robots.txt",
+  domain: "http://localhost:8000",
+  robotsApi: "/api/v1/metadata/robots",
+  sitemapApi: "/api/v1/metadata/sitemap"
 };
 
 /*

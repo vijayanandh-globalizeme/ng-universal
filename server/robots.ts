@@ -1,30 +1,54 @@
 import { environment } from '../src/environments/environment';
-import { Request, Response } from 'express';
 import * as fs from 'fs';
 
-export function robots(req: Request, res: Response) {
-    try {
-        const https = require('http');
-        https.get('http://127.0.0.1:8000/api/v1/robots', (response: any) => {
-            let data:any = [];
-            
-            response.on('data', (chunk: any) => {
-            data.push(chunk);
+let http = require("http"),
+    https = require("https");
+
+/**
+* robotTxt:  REST get request returning JSON object(s)
+* @param options: http options object
+// */
+
+export function robotTxt (options: any) {
+    let reqHandler = +options.port === 443 ? https : http;
+
+    return new Promise((resolve, reject) => {
+        let request = reqHandler.get(options.host+options.path, (response: any) => {
+            let data: any = []; 
+            response.setEncoding('utf8');
+
+            response.on('data', function (chunk: any) {
+                data = chunk;
             });
-            
+
             response.on('end', () => {
-            const users = JSON.parse(Buffer.concat(data).toString());
-            fs.writeFile('dist/vijay/browser/robots.txt', users.data, function(err) {
-                if(err && err != null){
-                    res.status(500).end();
+                if(data && data != ""){
+                    data = JSON.parse(data);
+                    if(data?.robots?.data){
+                        try {
+                            fs.writeFile(environment.robotsTxt, data.robots.data, function(err) {
+                                if(err && err != null){
+                                    reject(err);
+                                }
+                                resolve({
+                                    statusCode: response.statusCode,
+                                    message: "Robots txt file has updated"
+                                });
+                            });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    }
+                }else{
+                    request.end();
                 }
-                res.status(200).end();
-            });
             });
         });
 
-        return res.status(200).end();
-    } catch (error) {
-        return res.status(500).end();
-    }
+        request.on('error', (err: any) => {
+            reject(err);
+        });
+
+        request.end();
+    });
 }

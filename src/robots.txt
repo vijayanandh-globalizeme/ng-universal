@@ -1,1 +1,3 @@
-nagular robot
+User-agent: *
+ Disallow: 
+ Sitemap: http://localhost:4200/sitemap.xml

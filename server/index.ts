@@ -4,12 +4,17 @@ import { ngExpressEngine } from '@nguniversal/express-engine';
 import { AppServerModule } from '../src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 
+import * as express from 'express';
+
 import { join } from 'path';
 import { existsSync } from 'fs';
 
-import * as express from 'express';
-const { robots } = require('./robots');
-const { sitemap } = require('./sitemap');
+import { robotTxt } from './robots';
+import { sitemap } from './sitemap';
+import { environment } from '../src/environments/environment';
+
+// const { getJSON } = require('./robots');
+// const { sitemap } = require('./sitemap');
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -26,10 +31,30 @@ export function app(): express.Express {
   server.set('views', distFolder);
 
   // Sitemap
-  server.get('/generate/sitemap', sitemap);
+  // server.get('/generate/sitemap', sitemap);
+  server.get('/generate/sitemap', (req, res, next) => {
+    sitemap({
+        host: environment.domain,
+        path: environment.sitemapApi
+    }).then((data: any) => {
+        res.json(data);
+    }, (error: any) => {
+        next(error);
+    });
+  });
+
 
   // robot.txt
-  server.get('/generate/robot', robots);
+  server.get('/generate/robots', (req, res, next) => {
+    robotTxt({
+        host: environment.domain,
+        path: environment.robotsApi
+    }).then((data: any) => {
+        res.json(data);
+    }, (error: any) => {
+        next(error);
+    });
+  });
 
 
   // Example Express Rest API endpoints
