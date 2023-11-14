@@ -27,12 +27,14 @@ export function sitemap(options: any) {
             });
 
             response.on('end', () => {
-                console.log("data", data);
                 if(data && data != ""){
                     data = JSON.parse(data);
                     if(data?.sitemap){
                         let links = data?.sitemap.map(function(elem: any){
                             elem.priority = parseFloat(elem.priority);
+                            if(elem.slug_name && elem.slug_name != null){
+                                elem.url = elem.slug_name+elem.url;
+                            }
                             return elem;
                         });
                         links.unshift({
